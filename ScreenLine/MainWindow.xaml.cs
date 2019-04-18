@@ -22,9 +22,19 @@ namespace ScreenLine
     /// 
     public partial class MainWindow : Window
     {
+        #region Customer requirement
+        private readonly SolidColorBrush NONE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xE3, 0xE3, 0xE3));
+        private readonly SolidColorBrush HALF_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0xFF, 0xB0));
+        private readonly SolidColorBrush ONE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0x8C, 0x55));
+        private readonly SolidColorBrush DOUBLE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0x4D, 0xA6));
+        private readonly SolidColorBrush SLOPE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF));
+        private readonly double LINE_THICKNESS = 3;
+        #endregion
+
+        #region Inner Parameter
         private LineGeometry g_lineGeometry;
         private Point g_startPoint;
-        private SolidColorBrush Color;
+
         public enum ClickState
         {
             Initial = 0,
@@ -37,6 +47,7 @@ namespace ScreenLine
 
         double dLabelY;
         double dSpotX, dSpotY;
+        //double dLineY;
 
         double FirstXPos, FirstYPos, FirstArrowXPos, FirstArrowYPos;
         double FirstLabelXPos, FirstLabelYPos, FirstArrowLabelXPos, FirstArrowLabelYPos;
@@ -46,15 +57,17 @@ namespace ScreenLine
 
         System.Windows.Controls.Control LastControl;
         System.Windows.Shapes.Ellipse LastEllipse;
+        System.Windows.Shapes.Path StartPath;
+        #endregion
+
 
         public MainWindow()
         {
             InitializeComponent();
 
             g_State = ClickState.Initial;
-            Color = new SolidColorBrush(Colors.Red);
 
-            System.Windows.Forms.DialogResult result = System.Windows.Forms.MessageBox.Show("ESC : 取消 Ctrl+c : 關閉程式", "使用說明", System.Windows.Forms.MessageBoxButtons.OK);
+            System.Windows.Forms.DialogResult result = System.Windows.Forms.MessageBox.Show("ESC : 關閉程式 \nSpace : 取消 ", "使用說明", System.Windows.Forms.MessageBoxButtons.OK);
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 g_State = ClickState.Idle;
@@ -89,12 +102,12 @@ namespace ScreenLine
         private void FirstTrigger(Point point)
         {
             Ellipse startPoint = new Ellipse();
-            startPoint.Width = 20;
-            startPoint.Height = 20;
-            startPoint.Fill = Color;
+            startPoint.Width = 10;
+            startPoint.Height = 10;
+            startPoint.Fill = NONE_LINE_COLOR;
 
-            startPoint.SetValue(Canvas.LeftProperty, (double)point.X - 10);
-            startPoint.SetValue(Canvas.TopProperty, (double)point.Y - 10);
+            startPoint.SetValue(Canvas.LeftProperty, (double)point.X - 5);
+            startPoint.SetValue(Canvas.TopProperty, (double)point.Y - 5);
 
             DesigningCanvas.Children.Add(startPoint);
             LastEllipse = startPoint;
@@ -103,8 +116,8 @@ namespace ScreenLine
             g_lineGeometry.EndPoint = point;
 
             System.Windows.Shapes.Path myPath = new System.Windows.Shapes.Path();
-            myPath.Stroke = Color;
-            myPath.StrokeThickness = 4;
+            myPath.Stroke = SLOPE_LINE_COLOR;
+            myPath.StrokeThickness = LINE_THICKNESS;
             myPath.Data = g_lineGeometry;
 
             g_startPoint = point;
@@ -113,39 +126,39 @@ namespace ScreenLine
 
         private void EndTrigger(Point endPoint)
         {
-            // 實線結束點
+            // 實線結束點 (100%)
             Ellipse endEllipse = new Ellipse();
-            endEllipse.Width = 20;
-            endEllipse.Height = 20;
-            endEllipse.Fill = Color;
-            endEllipse.SetValue(Canvas.LeftProperty, (double)endPoint.X - 10);
-            endEllipse.SetValue(Canvas.TopProperty, (double)endPoint.Y - 10);
+            endEllipse.Width = 10;
+            endEllipse.Height = 10;
+            endEllipse.Fill = ONE_LINE_COLOR;
+            endEllipse.SetValue(Canvas.LeftProperty, (double)endPoint.X - 5);
+            endEllipse.SetValue(Canvas.TopProperty, (double)endPoint.Y - 5);
 
             DesigningCanvas.Children.Add(endEllipse);
 
-            //計算虛線終點
+            //計算虛線終點 
             Point calcEndPoint = new Point();
             calcEndPoint.X = endPoint.X - g_startPoint.X + endPoint.X;
             calcEndPoint.Y = endPoint.Y - g_startPoint.Y + endPoint.Y;
-            ////劃一條虛線
+            ////劃一條虛斜線 
             LineGeometry lineGeometry = new LineGeometry();
             lineGeometry.StartPoint = endPoint;
             lineGeometry.EndPoint = calcEndPoint;
             System.Windows.Shapes.Path myPath = new System.Windows.Shapes.Path();
-            myPath.Stroke = Color;
-            myPath.StrokeThickness = 4;
+            myPath.Stroke = SLOPE_LINE_COLOR;
+            myPath.StrokeThickness = LINE_THICKNESS;
             myPath.Data = lineGeometry;
             myPath.StrokeDashArray = new DoubleCollection() { 2, 3 };
 
             DesigningCanvas.Children.Add(myPath);
 
-            //// 虛線結束點
+            //// 虛線結束點 (200%)
             Ellipse endDottedEllipse = new Ellipse();
-            endDottedEllipse.Width = 20;
-            endDottedEllipse.Height = 20;
-            endDottedEllipse.Fill = Color;
-            endDottedEllipse.SetValue(Canvas.LeftProperty, (double)calcEndPoint.X - 10);
-            endDottedEllipse.SetValue(Canvas.TopProperty, (double)calcEndPoint.Y - 10);
+            endDottedEllipse.Width = 10;
+            endDottedEllipse.Height = 10;
+            endDottedEllipse.Fill = DOUBLE_LINE_COLOR;
+            endDottedEllipse.SetValue(Canvas.LeftProperty, (double)calcEndPoint.X - 5);
+            endDottedEllipse.SetValue(Canvas.TopProperty, (double)calcEndPoint.Y - 5);
 
             DesigningCanvas.Children.Add(endDottedEllipse);
 
@@ -158,31 +171,33 @@ namespace ScreenLine
             startlineGeometry.StartPoint = new Point(g_startPoint.X, g_startPoint.Y);
             startlineGeometry.EndPoint = new Point(calcEndPoint.X, g_startPoint.Y);
             System.Windows.Shapes.Path startLinePath = new System.Windows.Shapes.Path();
-            startLinePath.Stroke = Color;
-            startLinePath.StrokeThickness = 4;
+            startLinePath.Stroke = NONE_LINE_COLOR;
+            startLinePath.StrokeThickness = LINE_THICKNESS;
 
             startLinePath.Data = startlineGeometry;
             DesigningCanvas.Children.Add(startLinePath);
-
+            StartPath = startLinePath;
 
             // 50% Line
             LineGeometry midLineGeometry = new LineGeometry();
             midLineGeometry.StartPoint = new Point(g_startPoint.X, (g_startPoint.Y + endPoint.Y) / 2);
             midLineGeometry.EndPoint = new Point(calcEndPoint.X, (g_startPoint.Y + endPoint.Y) / 2);
             System.Windows.Shapes.Path midLinePath = new System.Windows.Shapes.Path();
-            midLinePath.Stroke = Color;
-            midLinePath.StrokeThickness = 4;
+            midLinePath.Stroke = HALF_LINE_COLOR;
+            midLinePath.StrokeThickness = LINE_THICKNESS;
 
             midLinePath.Data = midLineGeometry;
             DesigningCanvas.Children.Add(midLinePath);
+
+            //dLineY = (g_startPoint.Y + endPoint.Y) / 2 - g_startPoint.Y;
 
             // 100% Line
             LineGeometry solidLineEndGeometry = new LineGeometry();
             solidLineEndGeometry.StartPoint = new Point(g_startPoint.X, endPoint.Y);
             solidLineEndGeometry.EndPoint = new Point(calcEndPoint.X, endPoint.Y);
             System.Windows.Shapes.Path solidEndPath = new System.Windows.Shapes.Path();
-            solidEndPath.Stroke = Color;
-            solidEndPath.StrokeThickness = 4;
+            solidEndPath.Stroke = ONE_LINE_COLOR;
+            solidEndPath.StrokeThickness = LINE_THICKNESS;
 
             solidEndPath.Data = solidLineEndGeometry;
             DesigningCanvas.Children.Add(solidEndPath);
@@ -191,8 +206,8 @@ namespace ScreenLine
             dottedLineGeometry.StartPoint = new Point(g_startPoint.X, calcEndPoint.Y); ;
             dottedLineGeometry.EndPoint = new Point(calcEndPoint.X, calcEndPoint.Y); ;
             System.Windows.Shapes.Path dottedLinePath = new System.Windows.Shapes.Path();
-            dottedLinePath.Stroke = Color;
-            dottedLinePath.StrokeThickness = 4;
+            dottedLinePath.Stroke = DOUBLE_LINE_COLOR;
+            dottedLinePath.StrokeThickness = LINE_THICKNESS;
 
             dottedLinePath.Data = dottedLineGeometry;
             DesigningCanvas.Children.Add(dottedLinePath);
@@ -209,38 +224,38 @@ namespace ScreenLine
             }
 
             System.Windows.Controls.Label startLabel = new System.Windows.Controls.Label();
-            startLabel.Content = @"000%";
-            startLabel.Foreground = Color;
-            startLabel.SetValue(Canvas.LeftProperty, labelXpoint - 100);
+            startLabel.Content = @"0%";
+            startLabel.Foreground = NONE_LINE_COLOR;
+            startLabel.SetValue(Canvas.LeftProperty, labelXpoint - 50);
             startLabel.SetValue(Canvas.TopProperty, g_startPoint.Y - 10);
-            startLabel.FontSize = 20;
+            startLabel.FontSize = 10;
 
             DesigningCanvas.Children.Add(startLabel);
 
             System.Windows.Controls.Label midLabel = new System.Windows.Controls.Label();
-            midLabel.Content = @"050%";
-            midLabel.Foreground = Color;
-            midLabel.SetValue(Canvas.LeftProperty, labelXpoint - 100);
+            midLabel.Content = @"50%";
+            midLabel.Foreground = HALF_LINE_COLOR;
+            midLabel.SetValue(Canvas.LeftProperty, labelXpoint - 50);
             midLabel.SetValue(Canvas.TopProperty, (g_startPoint.Y + endPoint.Y) / 2 - 10);
-            midLabel.FontSize = 20;
+            midLabel.FontSize = 10;
             DesigningCanvas.Children.Add(midLabel);
 
             dLabelY = ((g_startPoint.Y + endPoint.Y) / 2 - 10) - (g_startPoint.Y - 10);
 
             System.Windows.Controls.Label endSolidLineLabel = new System.Windows.Controls.Label();
             endSolidLineLabel.Content = @"100%";
-            endSolidLineLabel.Foreground = Color;
-            endSolidLineLabel.SetValue(Canvas.LeftProperty, labelXpoint - 100);
+            endSolidLineLabel.Foreground = ONE_LINE_COLOR;
+            endSolidLineLabel.SetValue(Canvas.LeftProperty, labelXpoint - 50);
             endSolidLineLabel.SetValue(Canvas.TopProperty, endPoint.Y - 10);
-            endSolidLineLabel.FontSize = 20;
+            endSolidLineLabel.FontSize = 10;
             DesigningCanvas.Children.Add(endSolidLineLabel);
 
             System.Windows.Controls.Label endDottedLineLabel = new System.Windows.Controls.Label();
             endDottedLineLabel.Content = @"200%";
-            endDottedLineLabel.Foreground = Color;
-            endDottedLineLabel.SetValue(Canvas.LeftProperty, labelXpoint - 100);
+            endDottedLineLabel.Foreground = DOUBLE_LINE_COLOR;
+            endDottedLineLabel.SetValue(Canvas.LeftProperty, labelXpoint - 50);
             endDottedLineLabel.SetValue(Canvas.TopProperty, calcEndPoint.Y - 10);
-            endDottedLineLabel.FontSize = 20;
+            endDottedLineLabel.FontSize = 10;
             DesigningCanvas.Children.Add(endDottedLineLabel);
 
             try
@@ -255,6 +270,10 @@ namespace ScreenLine
                     }
                     if (control.GetType() == typeof(System.Windows.Controls.Label))
                     {
+                        ((System.Windows.Controls.Control)control).PreviewMouseLeftButtonDown += this.MouseLeftButtonDown;
+                        ((System.Windows.Controls.Control)control).PreviewMouseLeftButtonUp += this.PreviewMouseLeftButtonUp;
+                        ((System.Windows.Controls.Control)control).Cursor = System.Windows.Input.Cursors.Hand;
+
                         if (null == LastControl)
                         {
                             LastControl = (System.Windows.Controls.Control)control;
@@ -275,7 +294,7 @@ namespace ScreenLine
 
         private void OnKeyDownHandler(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
+            if (e.Key == Key.Space)
             {
                 DesigningCanvas.Children.Clear();
                 g_lineGeometry = null;
@@ -284,7 +303,7 @@ namespace ScreenLine
                 LastEllipse = null;
             }
 
-            if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            if (e.Key == Key.Escape)
             {
                 System.Windows.Application.Current.Shutdown();
             }
@@ -316,15 +335,16 @@ namespace ScreenLine
                     {
                         int i = 0;
                         int j = 0;
+                        int k = 0;
                         foreach (object control in DesigningCanvas.Children)
                         {
                             if (control.GetType() == typeof(System.Windows.Shapes.Path))
                             {
                                 (control as FrameworkElement).SetValue(Canvas.LeftProperty,
-                                   e.GetPosition((control as FrameworkElement).Parent as FrameworkElement).X - FirstXPos);
+                                   e.GetPosition((control as FrameworkElement).Parent as FrameworkElement).X - FirstXPos  );
 
                                 (control as FrameworkElement).SetValue(Canvas.TopProperty,
-                                    e.GetPosition((control as FrameworkElement).Parent as FrameworkElement).Y - FirstYPos);
+                                    e.GetPosition((control as FrameworkElement).Parent as FrameworkElement).Y - FirstYPos );
                             }
                             else if (control.GetType() == typeof(System.Windows.Shapes.Ellipse))
                             {
@@ -356,10 +376,10 @@ namespace ScreenLine
         private void MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //In this event, we get current mouse position on the control to use it in the MouseMove event.
-            FirstXPos = e.GetPosition(sender as Shape).X;
-            FirstYPos = e.GetPosition(sender as Shape).Y;
-            FirstArrowXPos = e.GetPosition((sender as Shape).Parent as Shape).X - FirstXPos;
-            FirstArrowYPos = e.GetPosition((sender as Shape).Parent as Shape).Y - FirstYPos;
+            FirstXPos = e.GetPosition(StartPath as Shape).X;
+            FirstYPos = e.GetPosition(StartPath as Shape).Y;
+            FirstArrowXPos = e.GetPosition((StartPath as Shape).Parent as Shape).X - FirstXPos;
+            FirstArrowYPos = e.GetPosition((StartPath as Shape).Parent as Shape).Y - FirstYPos;
 
             FirstLabelXPos = e.GetPosition(LastControl).X;
             FirstLabelYPos = e.GetPosition(LastControl).Y;
@@ -371,12 +391,7 @@ namespace ScreenLine
             FirstArrowEllipseXPos = e.GetPosition((LastEllipse).Parent as System.Windows.Controls.Control).X - FirstEllipseXPos;
             FirstArrowEllipseYPos = e.GetPosition((LastEllipse).Parent as System.Windows.Controls.Control).Y - FirstEllipseYPos;
 
-
-
             MovingObject = sender;
         }
-
     }
-
-
 }
