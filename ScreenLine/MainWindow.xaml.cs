@@ -28,7 +28,8 @@ namespace ScreenLine
         private readonly SolidColorBrush ONE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0x8C, 0x55));
         private readonly SolidColorBrush DOUBLE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0x4D, 0xA6));
         private readonly SolidColorBrush SLOPE_LINE_COLOR = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF));
-        private readonly double LINE_THICKNESS = 3;
+        private readonly double SLOPE_LINE_THICKNESS = 5;
+        private readonly double HORIZONTAL_LINE_THICKNESS = 2;
         #endregion
 
         #region Inner Parameter
@@ -117,7 +118,7 @@ namespace ScreenLine
 
             System.Windows.Shapes.Path myPath = new System.Windows.Shapes.Path();
             myPath.Stroke = SLOPE_LINE_COLOR;
-            myPath.StrokeThickness = LINE_THICKNESS;
+            myPath.StrokeThickness = SLOPE_LINE_THICKNESS;
             myPath.Data = g_lineGeometry;
 
             g_startPoint = point;
@@ -146,7 +147,7 @@ namespace ScreenLine
             lineGeometry.EndPoint = calcEndPoint;
             System.Windows.Shapes.Path myPath = new System.Windows.Shapes.Path();
             myPath.Stroke = SLOPE_LINE_COLOR;
-            myPath.StrokeThickness = LINE_THICKNESS;
+            myPath.StrokeThickness = SLOPE_LINE_THICKNESS;
             myPath.Data = lineGeometry;
             myPath.StrokeDashArray = new DoubleCollection() { 2, 3 };
 
@@ -172,7 +173,7 @@ namespace ScreenLine
             startlineGeometry.EndPoint = new Point(calcEndPoint.X, g_startPoint.Y);
             System.Windows.Shapes.Path startLinePath = new System.Windows.Shapes.Path();
             startLinePath.Stroke = NONE_LINE_COLOR;
-            startLinePath.StrokeThickness = LINE_THICKNESS;
+            startLinePath.StrokeThickness = HORIZONTAL_LINE_THICKNESS;
 
             startLinePath.Data = startlineGeometry;
             DesigningCanvas.Children.Add(startLinePath);
@@ -184,7 +185,7 @@ namespace ScreenLine
             midLineGeometry.EndPoint = new Point(calcEndPoint.X, (g_startPoint.Y + endPoint.Y) / 2);
             System.Windows.Shapes.Path midLinePath = new System.Windows.Shapes.Path();
             midLinePath.Stroke = HALF_LINE_COLOR;
-            midLinePath.StrokeThickness = LINE_THICKNESS;
+            midLinePath.StrokeThickness = HORIZONTAL_LINE_THICKNESS;
 
             midLinePath.Data = midLineGeometry;
             DesigningCanvas.Children.Add(midLinePath);
@@ -197,7 +198,7 @@ namespace ScreenLine
             solidLineEndGeometry.EndPoint = new Point(calcEndPoint.X, endPoint.Y);
             System.Windows.Shapes.Path solidEndPath = new System.Windows.Shapes.Path();
             solidEndPath.Stroke = ONE_LINE_COLOR;
-            solidEndPath.StrokeThickness = LINE_THICKNESS;
+            solidEndPath.StrokeThickness = HORIZONTAL_LINE_THICKNESS;
 
             solidEndPath.Data = solidLineEndGeometry;
             DesigningCanvas.Children.Add(solidEndPath);
@@ -207,7 +208,7 @@ namespace ScreenLine
             dottedLineGeometry.EndPoint = new Point(calcEndPoint.X, calcEndPoint.Y); ;
             System.Windows.Shapes.Path dottedLinePath = new System.Windows.Shapes.Path();
             dottedLinePath.Stroke = DOUBLE_LINE_COLOR;
-            dottedLinePath.StrokeThickness = LINE_THICKNESS;
+            dottedLinePath.StrokeThickness = HORIZONTAL_LINE_THICKNESS;
 
             dottedLinePath.Data = dottedLineGeometry;
             DesigningCanvas.Children.Add(dottedLinePath);
